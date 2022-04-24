@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { firebase } from "./firebase";
 
 const Crud = () => {
   const [apellidos, setApellidos] = useState("");
@@ -10,18 +11,138 @@ const Crud = () => {
   const [ciudad, setCiudad] = useState("");
   const [id, setId] = useState(null);
   const [error, setError] = useState("");
+  const [items, setItems] = useState([]);
 
   const tipos = [
     { value: "CC", name: "Cédula de ciudadanía" },
     { value: "TI", name: "Tarjeta de identidad" },
     { value: "CE", name: "Cédula de extranjería" },
   ];
-  
+
+  const _tipoIdentificacion = (identificacion) => {
+    let text = "";
+    tipos.forEach((e) => {
+      if (identificacion === e.value) text = e.name;
+    });
+    return text;
+  };
+
+  useEffect(() => {
+    const obtenerDatos = async () => {
+      try {
+        const db = firebase.firestore();
+        const data = await db.collection("clients").get();
+        const array = data.docs.map((item) => ({
+          id: item.id,
+          ...item.data(),
+        }));
+        setItems(array);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    obtenerDatos();
+  });
+
+  const eliminar = async (id) => {
+    try {
+      const db = firebase.firestore();
+      await db.collection("clients").doc(id).delete();
+      const aux = items.filter((item) => item.id !== id);
+      setItems(aux);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const activarEditar = (item) => {
+    setNombre(item.nombre);
+    setCiudad(item.ciudad);
+    setDepartamento(item.departamento);
+    setCiudad(item.ciudad);
+    setDireccion(item.direccion);
+    setApellidos(item.apellidos);
+    setTipoIdentificacion(item.tipo_identificacion);
+    setIdentificacion(item.identificacion);
+    setId(item.id);
+  };
+
+  const limpiar = (e) => {
+    if (e) {
+      e.preventDefault();
+    }
+    setNombre("");
+    setCiudad("");
+    setDepartamento("");
+    setCiudad("");
+    setDireccion("");
+    setApellidos("");
+    setIdentificacion("");
+    setId(null);
+    setError("");
+  };
+
+  const guardarDatos = async (e) => {
+    e.preventDefault();
+
+    if (!nombre.trim()) {
+      setError("Campo nombre vacío");
+      return;
+    }
+
+    if (!apellidos.trim()) {
+      setError("Campo apellidos vacío");
+      return;
+    }
+
+    if (!departamento.trim()) {
+      setError("Campo departamento vacío");
+      return;
+    }
+    if (!ciudad.trim()) {
+      setError("Campo ciudad vacío");
+      return;
+    }
+    if (!direccion.trim()) {
+      setError("Campo dirección vacío");
+      return;
+    }
+    if (!identificacion.trim()) {
+      setError("Campo identificación vacío");
+      return;
+    }
+    if (!tipoIdentificacion.trim()) {
+      setError("Campo tipo identificación vacío");
+      return;
+    }
+
+    try {
+      const db = firebase.firestore();
+      const cliente = {
+        nombre,
+        apellidos,
+        departamento,
+        ciudad,
+        tipo_identificacion: tipoIdentificacion,
+        identificacion,
+        direccion,
+      };
+      if (id) {
+        await db.collection("clients").doc(id).update(cliente);
+      } else {
+        await db.collection("clients").add(cliente);
+      }
+      limpiar();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <div className="container container-fluid">
       <h3>Formulario clientes</h3>
       <div className="row">
-        <div className="col-md-12">
+        <div className="col-md-4">
           <div className="card">
             <div className="card-body">
               {error && <div className="alert alert-danger">{error}</div>}
@@ -86,14 +207,54 @@ const Crud = () => {
                 <input
                   type="submit"
                   className="btn btn-primary"
+                  onClick={guardarDatos}
                   value={id ? "Editar persona" : "Crear persona"}
                 />
-                <button className="btn btn-success">
+                <button className="btn btn-success" onClick={limpiar}>
                   {id ? "Cancelar" : "Limpiar"}
                 </button>
               </form>
             </div>
           </div>
+        </div>
+        <div className="col-md-8">
+          <ul className="list-group">
+            {items.map((e) => (
+              <li key={e.id} className="list-group-item text-center">
+                Nombre: {e.nombre}
+                <br />
+                Apellidos: {e.apellidos}
+                <br />
+                Tipo de identificación:{" "}
+                {_tipoIdentificacion(e.tipo_identificacion)}
+                <br />
+                Identificación: {e.identificacion}
+                <br />
+                Ciudad: {e.ciudad}
+                <br />
+                Dirección: {e.direccion}
+                <br />
+                Departamento: {e.departamento}
+                <br />
+                <button
+                  className="btn btn-warning"
+                  onClick={() => {
+                    activarEditar(e);
+                  }}
+                >
+                  Editar
+                </button>
+                <button
+                  className="btn btn-danger"
+                  onClick={() => {
+                    eliminar(e.id);
+                  }}
+                >
+                  Eliminar
+                </button>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </div>
