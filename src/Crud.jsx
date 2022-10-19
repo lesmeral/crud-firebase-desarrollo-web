@@ -21,6 +21,7 @@ const Crud = () => {
 
   const _tipoIdentificacion = (identificacion) => {
     let text = "";
+    // console.log(identificacion);
     tipos.forEach((e) => {
       if (identificacion === e.value) text = e.name;
     });
@@ -112,6 +113,7 @@ const Crud = () => {
       return;
     }
     if (!tipoIdentificacion.trim()) {
+      console.log(tipoIdentificacion);
       setError("Campo tipo identificación vacío");
       return;
     }
@@ -194,7 +196,7 @@ const Crud = () => {
                   <select
                     className="form-control"
                     value={tipoIdentificacion}
-                    onChange={(e) => e.target.selectedOptions[0].value}
+                    onChange={(e) => setTipoIdentificacion(e.target.selectedOptions[0].value)}
                   >
                     {tipos.map((e) => (
                       <option key={e.value} value={e.value}>
@@ -217,43 +219,87 @@ const Crud = () => {
             </div>
           </div>
         </div>
-        <div className="col-md-8">
+        <div className="col-md-8 mt-5 ">
           <ul className="list-group">
+            <div className="row">
             {items.map((e) => (
-              <li key={e.id} className="list-group-item text-center">
-                Nombre: {e.nombre}
-                <br />
-                Apellidos: {e.apellidos}
-                <br />
-                Tipo de identificación:{" "}
-                {_tipoIdentificacion(e.tipo_identificacion)}
-                <br />
-                Identificación: {e.identificacion}
-                <br />
-                Ciudad: {e.ciudad}
-                <br />
-                Dirección: {e.direccion}
-                <br />
-                Departamento: {e.departamento}
-                <br />
-                <button
-                  className="btn btn-warning"
-                  onClick={() => {
-                    activarEditar(e);
-                  }}
-                >
-                  Editar
-                </button>
-                <button
-                  className="btn btn-danger"
-                  onClick={() => {
-                    eliminar(e.id);
-                  }}
-                >
-                  Eliminar
-                </button>
-              </li>
-            ))}
+                <div className="col" key={e.id}>
+                <div className="card cardw" >
+                  <img src="https://picsum.photos/500" className="card-img-top"  />
+                  <div className="card-body">
+                    <div className="row">
+                      <div className="col">
+                        <strong>Nombre:</strong> {e.nombre}
+                      </div>
+
+                      <div className="col">
+                       <strong> Apellidos:</strong> {e.apellidos}
+                      </div>
+                    </div>
+
+                    <div className="row">
+                      <div className="col">
+
+
+                        <strong>Tipo de identificación:</strong>{" "}
+                        {_tipoIdentificacion(e.tipo_identificacion)}
+
+                      </div>
+
+                      <div className="col">
+                        <strong>Identificación:</strong> {e.identificacion}
+
+                      </div>
+                    </div>
+                    <div className="row">
+                      <div className="col">
+                        <strong>Ciudad:</strong> {e.ciudad}
+                      </div>
+                      <div className="col">
+
+                        <strong>Dirección:</strong> {e.direccion}
+                      </div>
+                    </div>
+
+                    <div className="row">
+                      <div className="col">
+                       <strong> Departamento:</strong> {e.departamento}
+
+                      </div>
+                    </div>
+
+                    <div className="row">
+                  <div className="col">
+                    <button
+                      className="btn btn-warning"
+                      onClick={() => {
+                        activarEditar(e);
+                      }}
+                    >
+                      Editar
+                    </button>
+
+                  </div>
+
+                  <div className="col">
+                    <button
+                      className="btn btn-danger ml-3"
+                      onClick={() => {
+                        eliminar(e.id);
+                      }}
+                    >
+                      Eliminar
+                    </button>
+
+                  </div>
+                </div>
+                  </div>
+                </div>
+
+                </div>
+   
+   ))}
+   </div>
           </ul>
         </div>
       </div>
