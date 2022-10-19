@@ -225,7 +225,7 @@ const Crud = () => {
             {items.map((e) => (
                 <div className="col" key={e.id}>
                 <div className="card cardw" >
-                  <img src="https://picsum.photos/500" className="card-img-top"  />
+                  <img src="https://picsum.photos/500" className="card-img-top" alt="" />
                   <div className="card-body">
                     <div className="row">
                       <div className="col">
